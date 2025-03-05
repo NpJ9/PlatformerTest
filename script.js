@@ -7,17 +7,18 @@ function drawLevel(){
 }
 
 class Player {
-    constructor(x, y, radius, speed){
+    constructor(x, y, width, height, speed){
         this.x = x;
         this.y = y;
-        this.radius = radius;
+        this.width = width;
+        this.height = height;
         this.speed = speed;
         this.keys = {};
 
         //Jump Properties
         this.vy = 0; // vertical velocity
         this.gravity = 0.75; // how fast it falls
-        this.jumpForce = -17 ; //Initial velocity when jumping
+        this.jumpForce = -25  ; //Initial velocity when jumping
         this.isJumping = false; // tracks if player is in middle of jump
         this.groundY = y ; // Tracks original y position
 
@@ -26,13 +27,13 @@ class Player {
     }
 
     move(canvas){
-        if (this.keys["d"] && this.x + this.radius < canvas.width){
+        if (this.keys["d"] && this.x + this.width < canvas.width){
             this.x += this.speed;
         }
-        if (this.keys["a"] && this.x - this.radius > 0){
+        if (this.keys["a"] && this.x - this.width > 0){
             this.x -= this.speed;
         }
-        if (this.keys[" "] && this.y - this.speed - this.radius >= 0){
+        if (this.keys[" "] && this.y - this.speed - this.width >= 0){
             this.jump();
             console.log("JUMP")
         }
@@ -58,25 +59,61 @@ class Player {
 
     draw(ctx){
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI *2);
+        ctx.fillRect(this.x, this.y, this.width, this.height)
+        // ctx.arc(this.x, this.y, this.radius, 0, Math.PI *2);
         ctx.fill();
         ctx.closePath();
     }
 }
 
-let player = new Player(500, 1100, 40, 10);
+let player = new Player(500, 1000, 50, 50,10);
+
+const platformsArray = [];
+
+class Platform {
+    constructor (x, y , width, height, color){
+        this.x = x;
+        this.y = y;
+        this.width = width; 
+        this.height = height;
+        this.color = color;
+    }
+
+    draw(ctx){
+        ctx.fillSytle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+}
+
+function generatePlatforms(){
+    const platformPositions = [
+        {x: 500, y: 600, width: 200, height: 10},
+        {x: 700, y: 700, width: 200, height: 10},
+        {x: 500, y: 900, width: 200, height: 10},
+        {x: 1000, y: 1000, width: 200, height: 10},
+    ]
+
+    platformPositions.forEach(position => { // Stores 
+        platformsArray.push(new Platform(position.x, position.y, position.width, position.height, "black"));
+    });
+}
 
 function gameLoop(){
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height) ;
     player.update();
     player.move(canvas);
     player.draw(ctx);
+    platformsArray.forEach(platform => platform.draw(ctx))
     requestAnimationFrame(gameLoop);
 };
 
+function collisionDetection(){
+
+}
+
+generatePlatforms();
 drawLevel();
 gameLoop();
-
 
 window.addEventListener("keydown",(e) =>{
     console.log(e.key)
